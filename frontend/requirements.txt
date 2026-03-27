@@ -1,0 +1,6 @@
+pillow 
+uvicorn 
+python-multipart
+streamlit
+python-dotenv
+fastapi 

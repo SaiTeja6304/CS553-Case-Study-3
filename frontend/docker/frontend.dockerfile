@@ -1,12 +1,11 @@
 FROM python:3.13.5-slim
 
-RUN apt-get update && apt-get install -y && rm -rf /var/lib/apt/lists/*
-
-RUN pip install -r ../requirements.txt --no-cache-dir
-
 WORKDIR /app
 
-COPY ../src/ /app/src/
+COPY requirements.txt /app/requirements.txt
+RUN pip install --no-cache-dir -r /app/requirements.txt
+
+COPY src/ /app/src/
 
 EXPOSE 22011
 EXPOSE 9090

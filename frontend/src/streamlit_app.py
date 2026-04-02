@@ -1,11 +1,12 @@
 import streamlit as st
 import requests
+import prometheus_client
 
 st.set_page_config(page_title="VLM Chat", page_icon=":robot_face:", layout="wide")
 st.title("VLM Chat")
 
-API_PORT = "9011"
-API_SERVER = f"http://paffenroth-23.dyn.wpi.edu:{API_PORT}"
+API_PORT = "22012"
+API_SERVER = f"http://backend:{API_PORT}"
 HTTP_MAX_TIMEOUT_SECONDS = 2400
 
 if "chat_history" not in st.session_state:
@@ -65,4 +66,5 @@ if query:
         else:
             st.error(response.json().get("detail", "Unknown error"))
 
+prometheus_client.start_http_server(22013)
 # streamlit run frontend/src/streamlit_app.py --server.port 7011 --server.address 0.0.0.0

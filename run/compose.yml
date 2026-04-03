@@ -1,5 +1,21 @@
 services:
   backend:
+    image: ipatel0/vlm-chat-backend:latest
+    container_name: vlm-chat-backend
+    ports:
+      - "22012:22012"
+    environment:
+      - HF_TOKEN=${HF_TOKEN}
+    networks:
+      - vlm-chat-network
+    restart: unless-stopped
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:22012/api/']
+      interval: 10s
+      timeout: 3s
+      retries: 10
+      start_period: 30s
+
 
 
   frontend:

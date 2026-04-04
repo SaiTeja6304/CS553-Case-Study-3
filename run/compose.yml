@@ -1,7 +1,9 @@
 services:
   backend:
-    image: ipatel0/vlm-chat-backend:latest
+    image: ssunku6/vlm-chat-backend:latest
     container_name: vlm-chat-backend
+    volumes:
+      - hf_cache:/root/.cache/huggingface
     ports:
       - "22012:22012"
     environment:
@@ -26,8 +28,6 @@ services:
         condition: service_healthy
     ports:
       - "22011:22011"
-    expose:
-      - '22013'
     networks:
       - vlm-chat-network
     restart: unless-stopped
@@ -128,4 +128,6 @@ volumes:
   prometheus_data:
     driver: local
   grafana_data:
+    driver: local
+  hf_cache:
     driver: local

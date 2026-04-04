@@ -2,7 +2,15 @@ import streamlit as st
 import requests
 import prometheus_client
 
+
+@st.cache_resource
+def _start_prometheus_metrics_server(port: int = 33333) -> None:
+    """Bind once per process; Streamlit reruns the script on every interaction."""
+    prometheus_client.start_http_server(port)
+
+
 st.set_page_config(page_title="VLM Chat", page_icon=":robot_face:", layout="wide")
+_start_prometheus_metrics_server()
 st.title("VLM Chat")
 
 API_PORT = "22012"
@@ -65,6 +73,3 @@ if query:
             st.session_state.chat_history.append(("assistant", response.json()["response"]))
         else:
             st.error(response.json().get("detail", "Unknown error"))
-
-prometheus_client.start_http_server(22013)
-# streamlit run frontend/src/streamlit_app.py --server.port 7011 --server.address 0.0.0.0

@@ -2,7 +2,7 @@
 torch
 --extra-index-url https://pypi.org/simple
 
-transformers
+transformers==4.51.0
 pillow
 uvicorn
 python-multipart

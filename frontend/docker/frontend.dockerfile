@@ -9,6 +9,6 @@ RUN pip install --no-cache-dir prometheus-client
 COPY src/ /app/src/
 
 EXPOSE 22011
-EXPOSE 22013
+EXPOSE 33333
 
 CMD ["streamlit", "run", "src/streamlit_app.py", "--server.port", "22011", "--server.address", "0.0.0.0"]

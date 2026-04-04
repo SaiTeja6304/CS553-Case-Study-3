@@ -1,4 +1,4 @@
-from transformers import pipeline, AutoConfig
+from transformers import pipeline
 from huggingface_hub import InferenceClient
 import io
 import base64
@@ -15,6 +15,17 @@ HF_TOKEN = os.getenv("HF_TOKEN")
 
 conn, cursor = create_connection()
 create_table(conn, cursor)
+
+LOCAL_VLM_MODEL = "HuggingFaceTB/SmolVLM-500M-Instruct"
+
+pipe = pipeline(
+    "image-text-to-text",
+    model=LOCAL_VLM_MODEL,
+    dtype=torch.float32,
+    device_map="cpu",
+    trust_remote_code=True,
+)
+
 
 async def generate_response_local(input_img: UploadFile, query: str, using_local_model: bool, chat_history: str):
    
@@ -39,16 +50,13 @@ async def generate_response_local(input_img: UploadFile, query: str, using_local
         }
     ]
 
-    pipe = pipeline(
-        "image-text-to-text",
-        model="HuggingFaceTB/SmolVLM-500M-Instruct",
-        torch_dtype=torch.float32,
-        device_map="cpu"
-    )
-
-    output = pipe(messages, max_new_tokens=200)
-
-    response = output[0]["generated_text"][-1]["content"]
+    try:
+        output = pipe(text=messages, max_new_tokens=200)
+        print(f"Raw pipeline output: {output[0]["generated_text"]}")
+        response = output[0]["generated_text"][-1]["content"]
+    except Exception as e:
+        print(f"Pipeline error: {e}")
+        raise
     
     try:
         insert_log(conn, 
@@ -94,15 +102,18 @@ async def generate_response_api(input_img: UploadFile, query: str, using_local_m
             ],
         }
     ]
-    client = InferenceClient(token=HF_TOKEN)
 
-    completion = client.chat.completions.create(
-        model="google/gemma-3-27b-it:featherless-ai",
-        messages=messages,
-        max_tokens=500
-    )
-    
-    response = completion.choices[0].message.content
+    try:
+        client = InferenceClient(token=HF_TOKEN, provider="featherless-ai")
+        completion = client.chat.completions.create(
+            model="google/gemma-3-27b-it",
+            messages=messages,
+            max_tokens=500
+        )
+        response = completion.choices[0].message.content
+    except Exception as e:
+        print(f"Inference API error: {e}")
+        raise
 
     try:
         insert_log(conn, 

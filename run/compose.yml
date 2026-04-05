@@ -16,8 +16,6 @@ services:
       retries: 10
       start_period: 30s
 
-
-
   frontend:
     image: ssunku6/vlm-chat-frontend:latest
     container_name: vlm-chat-frontend

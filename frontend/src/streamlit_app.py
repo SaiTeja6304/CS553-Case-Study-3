@@ -3,44 +3,35 @@ import requests
 import prometheus_client
 from time import perf_counter
 
-API_FRONTEND_REQUESTS_TOTAL = prometheus_client.Counter(
-    'api_frontend_requests_total',
-    'Total number of API requests made.'
-)
-
-LOCAL_FRONTEND_REQUESTS_TOTAL = prometheus_client.Counter(
-    'local_frontend_requests_total',
-    'Total number of local requests made.'
-)
-
-API_FRONTEND_ERRORS_TOTAL = prometheus_client.Counter(
-    'api_frontend_errors_total',
-    'Total number of API request errors occured in backend.'
-)
-
-LOCAL_FRONTEND_ERRORS_TOTAL = prometheus_client.Counter(
-    'local_frontend_errors_total',
-    'Total number of local request errors occured in backend.'
-)
-
-API_FRONTEND_REQUESTTIME_SECONDS = prometheus_client.Histogram(
-    'api_frontend_requesttime_seconds',
-    'Total time spent processing backend API requests.'
-)
-
-LOCAL_FRONTEND_REQUESTTIME_SECONDS = prometheus_client.Histogram(
-    'local_frontend_requesttime_seconds',
-    'Total time spent processing backend local requests.'
-)
-
 @st.cache_resource
-def _start_prometheus_metrics_server(port: int = 33333) -> None:
+def _start_prometheus_metrics_server(port: int = 33333) -> dict:
     """Bind once per process; Streamlit reruns the script on every interaction."""
     prometheus_client.start_http_server(port)
 
+    return {
+        "api_requests": prometheus_client.Counter(
+            'api_frontend_requests_total', 'Total number of API requests made.'
+        ),
+        "local_requests": prometheus_client.Counter(
+            'local_frontend_requests_total', 'Total number of local requests made.'
+        ),
+        "api_errors": prometheus_client.Counter(
+            'api_frontend_errors_total', 'Total number of API request errors.'
+        ),
+        "local_errors": prometheus_client.Counter(
+            'local_frontend_errors_total', 'Total number of local request errors.'
+        ),
+        "api_time": prometheus_client.Histogram(
+            'api_frontend_requesttime_seconds', 'Time spent processing API requests.'
+        ),
+        "local_time": prometheus_client.Histogram(
+            'local_frontend_requesttime_seconds', 'Time spent processing local requests.'
+        )
+    }
+
 
 st.set_page_config(page_title="VLM Chat", page_icon=":robot_face:", layout="wide")
-_start_prometheus_metrics_server()
+metrics = _start_prometheus_metrics_server()
 st.title("VLM Chat")
 
 API_PORT = "22012"
@@ -89,12 +80,12 @@ if query:
             chat_history_str = "\n".join([f"{role}: {msg}" for role, msg in st.session_state.chat_history])
             
             if use_local_model:
-                LOCAL_FRONTEND_REQUESTS_TOTAL.inc()
+                metrics["local_requests"].inc()
                 response = requests.post(API_SERVER + "/api/generate-response-local", 
                 files={"input_img": image}, 
                 data={"query": query, "chat_history": chat_history_str}, timeout=HTTP_MAX_TIMEOUT_SECONDS)
             else:
-                API_FRONTEND_REQUESTS_TOTAL.inc()
+                metrics["api_requests"].inc()
                 response = requests.post(API_SERVER + "/api/generate-response-api", 
                 files={"input_img": image}, 
                 data={"query": query, "chat_history": chat_history_str}, timeout=HTTP_MAX_TIMEOUT_SECONDS)
@@ -105,12 +96,12 @@ if query:
             st.session_state.chat_history.append(("assistant", response.json()["response"]))
         else:
             if use_local_model:
-                LOCAL_FRONTEND_ERRORS_TOTAL.inc()
+                metrics["local_errors"].inc()
             else:
-                API_FRONTEND_ERRORS_TOTAL.inc()
+                metrics["api_errors"].inc()
             st.error(response.json().get("detail", "Unknown error"))
         
         if use_local_model:
-            LOCAL_FRONTEND_REQUESTTIME_SECONDS.observe(perf_counter() - req_start_time)
+            metrics["local_time"].observe(perf_counter() - req_start_time)
         else:
-            API_FRONTEND_REQUESTTIME_SECONDS.observe(perf_counter() - req_start_time)
+            metrics["api_time"].observe(perf_counter() - req_start_time)

@@ -1,40 +1,16 @@
 import streamlit as st
 import requests
 import prometheus_client
-from time import perf_counter
 
-API_FRONTEND_REQUESTS_TOTAL = prometheus_client.Counter(
-    'api_frontend_requests_total',
-    'Total number of API requests made.'
-)
 
-LOCAL_FRONTEND_REQUESTS_TOTAL = prometheus_client.Counter(
-    'local_frontend_requests_total',
-    'Total number of local requests made.'
-)
-
-API_FRONTEND_ERRORS_TOTAL = prometheus_client.Counter(
-    'api_frontend_errors_total',
-    'Total number of API request errors occured in backend.'
-)
-
-LOCAL_FRONTEND_ERRORS_TOTAL = prometheus_client.Counter(
-    'local_frontend_errors_total',
-    'Total number of local request errors occured in backend.'
-)
-
-API_FRONTEND_REQUESTTIME_SECONDS = prometheus_client.Histogram(
-    'api_frontend_requesttime_seconds',
-    'Total time spent processing backend API requests.'
-)
-
-LOCAL_FRONTEND_REQUESTTIME_SECONDS = prometheus_client.Histogram(
-    'local_frontend_requesttime_seconds',
-    'Total time spent processing backend local requests.'
-)
+@st.cache_resource
+def _start_prometheus_metrics_server(port: int = 33333) -> None:
+    """Bind once per process; Streamlit reruns the script on every interaction."""
+    prometheus_client.start_http_server(port)
 
 
 st.set_page_config(page_title="VLM Chat", page_icon=":robot_face:", layout="wide")
+_start_prometheus_metrics_server()
 st.title("VLM Chat")
 
 API_PORT = "22012"
@@ -103,19 +79,6 @@ if query:
             else:
                 API_FRONTEND_ERRORS_TOTAL.inc()
             st.error(response.json().get("detail", "Unknown error"))
-        
-        if use_local_model:
-            LOCAL_FRONTEND_REQUESTTIME_SECONDS.observe(perf_counter() - req_start_time)
-        else:
-            API_FRONTEND_REQUESTTIME_SECONDS.observe(perf_counter() - req_start_time)
-        
 
-@st.cache_resource
-def start_server():
-    prometheus_client.start_http_server(22013)
-    return
-
-start_server()
-
-
+prometheus_client.start_http_server(22013)
 # streamlit run frontend/src/streamlit_app.py --server.port 7011 --server.address 0.0.0.0

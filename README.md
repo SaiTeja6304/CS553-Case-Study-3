@@ -12,5 +12,8 @@ Inference: https://huggingface.co/google/gemma-3-27b-it
 Local: https://huggingface.co/HuggingFaceTB/SmolVLM-500M-Instruct
 
 ## Deployments
+VLM Chat: https://unroaming-insistingly-easton.ngrok-free.dev/
+Grafana Dashboard: https://nontragical-superspiritually-wendolyn.ngrok-free.dev/
+
 
 

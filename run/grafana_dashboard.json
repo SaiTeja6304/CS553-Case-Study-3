@@ -15,7 +15,7 @@
       },
       "targets": [
         {
-          "expr": "sum by (name) (rate(container_cpu_usage_seconds_total{name=~\"cookiemancer_(frontend|backend)\"}[5m])) * 100",
+          "expr": "sum by (name) (rate(container_cpu_usage_seconds_total{name=~\"vlm_chat_(frontend|backend)\"}[5m])) * 100",
           "legendFormat": "{{name}}",
           "refId": "A"
         }
@@ -48,7 +48,7 @@
       },
       "targets": [
         {
-          "expr": "sum by (name) (container_memory_working_set_bytes{name=~\"cookiemancer_(frontend|backend)\"}) / 1024 / 1024",
+          "expr": "sum by (name) (container_memory_working_set_bytes{name=~\"vlm_chat_(frontend|backend)\"}) / 1024 / 1024",
           "legendFormat": "{{name}}",
           "refId": "A"
         }
@@ -71,71 +71,256 @@
       }
     },
     {
-      "type": "barchart",
-      "title": "Frontend Response Time Histogram (last 24h)",
+      "type": "timeseries",
+      "title": "Frontend Request Rate (req/min)",
       "gridPos": {
-        "h": 10,
+        "h": 8,
         "w": 12,
         "x": 0,
         "y": 16
       },
       "targets": [
         {
-          "expr": "sum(increase(frontend_recipe_request_duration_seconds_bucket{le=\"60.0\"}[24h]))",
+          "expr": "rate(api_frontend_requests_total[5m]) * 60",
+          "legendFormat": "API requests",
+          "refId": "A"
+        },
+        {
+          "expr": "rate(local_frontend_requests_total[5m]) * 60",
+          "legendFormat": "Local requests",
+          "refId": "B"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqpm",
+          "min": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Backend Request Rate (req/min)",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 16
+      },
+      "targets": [
+        {
+          "expr": "rate(api_backend_requests_total[5m]) * 60",
+          "legendFormat": "API requests",
+          "refId": "A"
+        },
+        {
+          "expr": "rate(local_backend_requests_total[5m]) * 60",
+          "legendFormat": "Local requests",
+          "refId": "B"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqpm",
+          "min": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Health Check Request Rate (req/min)",
+      "gridPos": {
+        "h": 8,
+        "w": 24,
+        "x": 0,
+        "y": 24
+      },
+      "targets": [
+        {
+          "expr": "rate(health_check_requests_total[5m]) * 60",
+          "legendFormat": "Health checks",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqpm",
+          "min": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Frontend Error Rate (errors/min)",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 32
+      },
+      "targets": [
+        {
+          "expr": "rate(api_frontend_errors_total[5m]) * 60",
+          "legendFormat": "API errors",
+          "refId": "A"
+        },
+        {
+          "expr": "rate(local_frontend_errors_total[5m]) * 60",
+          "legendFormat": "Local errors",
+          "refId": "B"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqpm",
+          "min": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      }
+    },
+    {
+      "type": "timeseries",
+      "title": "Backend Error Rate (errors/min)",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 32
+      },
+      "targets": [
+        {
+          "expr": "rate(api_backend_errors_total[5m]) * 60",
+          "legendFormat": "API errors",
+          "refId": "A"
+        },
+        {
+          "expr": "rate(local_backend_errors_total[5m]) * 60",
+          "legendFormat": "Local errors",
+          "refId": "B"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "reqpm",
+          "min": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "multi"
+        }
+      }
+    },
+    {
+      "type": "barchart",
+      "title": "Frontend API Response Time Histogram (last 24h)",
+      "gridPos": {
+        "h": 10,
+        "w": 12,
+        "x": 0,
+        "y": 40
+      },
+      "targets": [
+        {
+          "expr": "sum(increase(api_frontend_requesttime_seconds_bucket{le=\"60.0\"}[24h]))",
           "legendFormat": "0-60s",
           "refId": "A",
           "instant": true
         },
         {
-          "expr": "sum(increase(frontend_recipe_request_duration_seconds_bucket{le=\"120.0\"}[24h])) - sum(increase(frontend_recipe_request_duration_seconds_bucket{le=\"60.0\"}[24h]))",
+          "expr": "sum(increase(api_frontend_requesttime_seconds_bucket{le=\"120.0\"}[24h])) - sum(increase(api_frontend_requesttime_seconds_bucket{le=\"60.0\"}[24h]))",
           "legendFormat": "60-120s",
           "refId": "B",
           "instant": true
         },
         {
-          "expr": "sum(increase(frontend_recipe_request_duration_seconds_bucket{le=\"180.0\"}[24h])) - sum(increase(frontend_recipe_request_duration_seconds_bucket{le=\"120.0\"}[24h]))",
+          "expr": "sum(increase(api_frontend_requesttime_seconds_bucket{le=\"180.0\"}[24h])) - sum(increase(api_frontend_requesttime_seconds_bucket{le=\"120.0\"}[24h]))",
           "legendFormat": "120-180s",
           "refId": "C",
           "instant": true
         },
         {
-          "expr": "sum(increase(frontend_recipe_request_duration_seconds_bucket{le=\"240.0\"}[24h])) - sum(increase(frontend_recipe_request_duration_seconds_bucket{le=\"180.0\"}[24h]))",
+          "expr": "sum(increase(api_frontend_requesttime_seconds_bucket{le=\"240.0\"}[24h])) - sum(increase(api_frontend_requesttime_seconds_bucket{le=\"180.0\"}[24h]))",
           "legendFormat": "180-240s",
           "refId": "D",
           "instant": true
         },
         {
-          "expr": "sum(increase(frontend_recipe_request_duration_seconds_bucket{le=\"300.0\"}[24h])) - sum(increase(frontend_recipe_request_duration_seconds_bucket{le=\"240.0\"}[24h]))",
+          "expr": "sum(increase(api_frontend_requesttime_seconds_bucket{le=\"300.0\"}[24h])) - sum(increase(api_frontend_requesttime_seconds_bucket{le=\"240.0\"}[24h]))",
           "legendFormat": "240-300s",
           "refId": "E",
           "instant": true
         },
         {
-          "expr": "sum(increase(frontend_recipe_request_duration_seconds_bucket{le=\"360.0\"}[24h])) - sum(increase(frontend_recipe_request_duration_seconds_bucket{le=\"300.0\"}[24h]))",
+          "expr": "sum(increase(api_frontend_requesttime_seconds_bucket{le=\"360.0\"}[24h])) - sum(increase(api_frontend_requesttime_seconds_bucket{le=\"300.0\"}[24h]))",
           "legendFormat": "300-360s",
           "refId": "F",
           "instant": true
         },
         {
-          "expr": "sum(increase(frontend_recipe_request_duration_seconds_bucket{le=\"420.0\"}[24h])) - sum(increase(frontend_recipe_request_duration_seconds_bucket{le=\"360.0\"}[24h]))",
+          "expr": "sum(increase(api_frontend_requesttime_seconds_bucket{le=\"420.0\"}[24h])) - sum(increase(api_frontend_requesttime_seconds_bucket{le=\"360.0\"}[24h]))",
           "legendFormat": "360-420s",
           "refId": "G",
           "instant": true
         },
         {
-          "expr": "sum(increase(frontend_recipe_request_duration_seconds_bucket{le=\"480.0\"}[24h])) - sum(increase(frontend_recipe_request_duration_seconds_bucket{le=\"420.0\"}[24h]))",
+          "expr": "sum(increase(api_frontend_requesttime_seconds_bucket{le=\"480.0\"}[24h])) - sum(increase(api_frontend_requesttime_seconds_bucket{le=\"420.0\"}[24h]))",
           "legendFormat": "420-480s",
           "refId": "H",
           "instant": true
         },
         {
-          "expr": "sum(increase(frontend_recipe_request_duration_seconds_bucket{le=\"540.0\"}[24h])) - sum(increase(frontend_recipe_request_duration_seconds_bucket{le=\"480.0\"}[24h]))",
+          "expr": "sum(increase(api_frontend_requesttime_seconds_bucket{le=\"540.0\"}[24h])) - sum(increase(api_frontend_requesttime_seconds_bucket{le=\"480.0\"}[24h]))",
           "legendFormat": "480-540s",
           "refId": "I",
           "instant": true
         },
         {
-          "expr": "sum(increase(frontend_recipe_request_duration_seconds_bucket{le=\"600.0\"}[24h])) - sum(increase(frontend_recipe_request_duration_seconds_bucket{le=\"540.0\"}[24h]))",
+          "expr": "sum(increase(api_frontend_requesttime_seconds_bucket{le=\"600.0\"}[24h])) - sum(increase(api_frontend_requesttime_seconds_bucket{le=\"540.0\"}[24h]))",
           "legendFormat": "540-600s",
           "refId": "J",
           "instant": true
@@ -164,70 +349,254 @@
     },
     {
       "type": "barchart",
-      "title": "Backend Response Time Histogram (last 24h)",
+      "title": "Frontend Local Response Time Histogram (last 24h)",
       "gridPos": {
         "h": 10,
         "w": 12,
         "x": 12,
-        "y": 16
+        "y": 40
       },
       "targets": [
         {
-          "expr": "sum(increase(backend_recipe_request_duration_seconds_bucket{le=\"60.0\"}[24h]))",
+          "expr": "sum(increase(local_frontend_requesttime_seconds_bucket{le=\"60.0\"}[24h]))",
           "legendFormat": "0-60s",
           "refId": "A",
           "instant": true
         },
         {
-          "expr": "sum(increase(backend_recipe_request_duration_seconds_bucket{le=\"120.0\"}[24h])) - sum(increase(backend_recipe_request_duration_seconds_bucket{le=\"60.0\"}[24h]))",
+          "expr": "sum(increase(local_frontend_requesttime_seconds_bucket{le=\"120.0\"}[24h])) - sum(increase(local_frontend_requesttime_seconds_bucket{le=\"60.0\"}[24h]))",
           "legendFormat": "60-120s",
           "refId": "B",
           "instant": true
         },
         {
-          "expr": "sum(increase(backend_recipe_request_duration_seconds_bucket{le=\"180.0\"}[24h])) - sum(increase(backend_recipe_request_duration_seconds_bucket{le=\"120.0\"}[24h]))",
+          "expr": "sum(increase(local_frontend_requesttime_seconds_bucket{le=\"180.0\"}[24h])) - sum(increase(local_frontend_requesttime_seconds_bucket{le=\"120.0\"}[24h]))",
           "legendFormat": "120-180s",
           "refId": "C",
           "instant": true
         },
         {
-          "expr": "sum(increase(backend_recipe_request_duration_seconds_bucket{le=\"240.0\"}[24h])) - sum(increase(backend_recipe_request_duration_seconds_bucket{le=\"180.0\"}[24h]))",
+          "expr": "sum(increase(local_frontend_requesttime_seconds_bucket{le=\"240.0\"}[24h])) - sum(increase(local_frontend_requesttime_seconds_bucket{le=\"180.0\"}[24h]))",
           "legendFormat": "180-240s",
           "refId": "D",
           "instant": true
         },
         {
-          "expr": "sum(increase(backend_recipe_request_duration_seconds_bucket{le=\"300.0\"}[24h])) - sum(increase(backend_recipe_request_duration_seconds_bucket{le=\"240.0\"}[24h]))",
+          "expr": "sum(increase(local_frontend_requesttime_seconds_bucket{le=\"300.0\"}[24h])) - sum(increase(local_frontend_requesttime_seconds_bucket{le=\"240.0\"}[24h]))",
           "legendFormat": "240-300s",
           "refId": "E",
           "instant": true
         },
         {
-          "expr": "sum(increase(backend_recipe_request_duration_seconds_bucket{le=\"360.0\"}[24h])) - sum(increase(backend_recipe_request_duration_seconds_bucket{le=\"300.0\"}[24h]))",
+          "expr": "sum(increase(local_frontend_requesttime_seconds_bucket{le=\"360.0\"}[24h])) - sum(increase(local_frontend_requesttime_seconds_bucket{le=\"300.0\"}[24h]))",
           "legendFormat": "300-360s",
           "refId": "F",
           "instant": true
         },
         {
-          "expr": "sum(increase(backend_recipe_request_duration_seconds_bucket{le=\"420.0\"}[24h])) - sum(increase(backend_recipe_request_duration_seconds_bucket{le=\"360.0\"}[24h]))",
+          "expr": "sum(increase(local_frontend_requesttime_seconds_bucket{le=\"420.0\"}[24h])) - sum(increase(local_frontend_requesttime_seconds_bucket{le=\"360.0\"}[24h]))",
           "legendFormat": "360-420s",
           "refId": "G",
           "instant": true
         },
         {
-          "expr": "sum(increase(backend_recipe_request_duration_seconds_bucket{le=\"480.0\"}[24h])) - sum(increase(backend_recipe_request_duration_seconds_bucket{le=\"420.0\"}[24h]))",
+          "expr": "sum(increase(local_frontend_requesttime_seconds_bucket{le=\"480.0\"}[24h])) - sum(increase(local_frontend_requesttime_seconds_bucket{le=\"420.0\"}[24h]))",
           "legendFormat": "420-480s",
           "refId": "H",
           "instant": true
         },
         {
-          "expr": "sum(increase(backend_recipe_request_duration_seconds_bucket{le=\"540.0\"}[24h])) - sum(increase(backend_recipe_request_duration_seconds_bucket{le=\"480.0\"}[24h]))",
+          "expr": "sum(increase(local_frontend_requesttime_seconds_bucket{le=\"540.0\"}[24h])) - sum(increase(local_frontend_requesttime_seconds_bucket{le=\"480.0\"}[24h]))",
           "legendFormat": "480-540s",
           "refId": "I",
           "instant": true
         },
         {
-          "expr": "sum(increase(backend_recipe_request_duration_seconds_bucket{le=\"600.0\"}[24h])) - sum(increase(backend_recipe_request_duration_seconds_bucket{le=\"540.0\"}[24h]))",
+          "expr": "sum(increase(local_frontend_requesttime_seconds_bucket{le=\"600.0\"}[24h])) - sum(increase(local_frontend_requesttime_seconds_bucket{le=\"540.0\"}[24h]))",
+          "legendFormat": "540-600s",
+          "refId": "J",
+          "instant": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "orientation": "vertical",
+        "showValue": "auto",
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
+      }
+    },
+    {
+      "type": "barchart",
+      "title": "Backend API Response Time Histogram (last 24h)",
+      "gridPos": {
+        "h": 10,
+        "w": 12,
+        "x": 0,
+        "y": 50
+      },
+      "targets": [
+        {
+          "expr": "sum(increase(api_backend_requesttime_seconds_bucket{le=\"60.0\"}[24h]))",
+          "legendFormat": "0-60s",
+          "refId": "A",
+          "instant": true
+        },
+        {
+          "expr": "sum(increase(api_backend_requesttime_seconds_bucket{le=\"120.0\"}[24h])) - sum(increase(api_backend_requesttime_seconds_bucket{le=\"60.0\"}[24h]))",
+          "legendFormat": "60-120s",
+          "refId": "B",
+          "instant": true
+        },
+        {
+          "expr": "sum(increase(api_backend_requesttime_seconds_bucket{le=\"180.0\"}[24h])) - sum(increase(api_backend_requesttime_seconds_bucket{le=\"120.0\"}[24h]))",
+          "legendFormat": "120-180s",
+          "refId": "C",
+          "instant": true
+        },
+        {
+          "expr": "sum(increase(api_backend_requesttime_seconds_bucket{le=\"240.0\"}[24h])) - sum(increase(api_backend_requesttime_seconds_bucket{le=\"180.0\"}[24h]))",
+          "legendFormat": "180-240s",
+          "refId": "D",
+          "instant": true
+        },
+        {
+          "expr": "sum(increase(api_backend_requesttime_seconds_bucket{le=\"300.0\"}[24h])) - sum(increase(api_backend_requesttime_seconds_bucket{le=\"240.0\"}[24h]))",
+          "legendFormat": "240-300s",
+          "refId": "E",
+          "instant": true
+        },
+        {
+          "expr": "sum(increase(api_backend_requesttime_seconds_bucket{le=\"360.0\"}[24h])) - sum(increase(api_backend_requesttime_seconds_bucket{le=\"300.0\"}[24h]))",
+          "legendFormat": "300-360s",
+          "refId": "F",
+          "instant": true
+        },
+        {
+          "expr": "sum(increase(api_backend_requesttime_seconds_bucket{le=\"420.0\"}[24h])) - sum(increase(api_backend_requesttime_seconds_bucket{le=\"360.0\"}[24h]))",
+          "legendFormat": "360-420s",
+          "refId": "G",
+          "instant": true
+        },
+        {
+          "expr": "sum(increase(api_backend_requesttime_seconds_bucket{le=\"480.0\"}[24h])) - sum(increase(api_backend_requesttime_seconds_bucket{le=\"420.0\"}[24h]))",
+          "legendFormat": "420-480s",
+          "refId": "H",
+          "instant": true
+        },
+        {
+          "expr": "sum(increase(api_backend_requesttime_seconds_bucket{le=\"540.0\"}[24h])) - sum(increase(api_backend_requesttime_seconds_bucket{le=\"480.0\"}[24h]))",
+          "legendFormat": "480-540s",
+          "refId": "I",
+          "instant": true
+        },
+        {
+          "expr": "sum(increase(api_backend_requesttime_seconds_bucket{le=\"600.0\"}[24h])) - sum(increase(api_backend_requesttime_seconds_bucket{le=\"540.0\"}[24h]))",
+          "legendFormat": "540-600s",
+          "refId": "J",
+          "instant": true
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "short",
+          "min": 0
+        },
+        "overrides": []
+      },
+      "options": {
+        "orientation": "vertical",
+        "showValue": "auto",
+        "legend": {
+          "displayMode": "list",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        },
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
+      }
+    },
+    {
+      "type": "barchart",
+      "title": "Backend Local Response Time Histogram (last 24h)",
+      "gridPos": {
+        "h": 10,
+        "w": 12,
+        "x": 12,
+        "y": 50
+      },
+      "targets": [
+        {
+          "expr": "sum(increase(local_backend_requesttime_seconds_bucket{le=\"60.0\"}[24h]))",
+          "legendFormat": "0-60s",
+          "refId": "A",
+          "instant": true
+        },
+        {
+          "expr": "sum(increase(local_backend_requesttime_seconds_bucket{le=\"120.0\"}[24h])) - sum(increase(local_backend_requesttime_seconds_bucket{le=\"60.0\"}[24h]))",
+          "legendFormat": "60-120s",
+          "refId": "B",
+          "instant": true
+        },
+        {
+          "expr": "sum(increase(local_backend_requesttime_seconds_bucket{le=\"180.0\"}[24h])) - sum(increase(local_backend_requesttime_seconds_bucket{le=\"120.0\"}[24h]))",
+          "legendFormat": "120-180s",
+          "refId": "C",
+          "instant": true
+        },
+        {
+          "expr": "sum(increase(local_backend_requesttime_seconds_bucket{le=\"240.0\"}[24h])) - sum(increase(local_backend_requesttime_seconds_bucket{le=\"180.0\"}[24h]))",
+          "legendFormat": "180-240s",
+          "refId": "D",
+          "instant": true
+        },
+        {
+          "expr": "sum(increase(local_backend_requesttime_seconds_bucket{le=\"300.0\"}[24h])) - sum(increase(local_backend_requesttime_seconds_bucket{le=\"240.0\"}[24h]))",
+          "legendFormat": "240-300s",
+          "refId": "E",
+          "instant": true
+        },
+        {
+          "expr": "sum(increase(local_backend_requesttime_seconds_bucket{le=\"360.0\"}[24h])) - sum(increase(local_backend_requesttime_seconds_bucket{le=\"300.0\"}[24h]))",
+          "legendFormat": "300-360s",
+          "refId": "F",
+          "instant": true
+        },
+        {
+          "expr": "sum(increase(local_backend_requesttime_seconds_bucket{le=\"420.0\"}[24h])) - sum(increase(local_backend_requesttime_seconds_bucket{le=\"360.0\"}[24h]))",
+          "legendFormat": "360-420s",
+          "refId": "G",
+          "instant": true
+        },
+        {
+          "expr": "sum(increase(local_backend_requesttime_seconds_bucket{le=\"480.0\"}[24h])) - sum(increase(local_backend_requesttime_seconds_bucket{le=\"420.0\"}[24h]))",
+          "legendFormat": "420-480s",
+          "refId": "H",
+          "instant": true
+        },
+        {
+          "expr": "sum(increase(local_backend_requesttime_seconds_bucket{le=\"540.0\"}[24h])) - sum(increase(local_backend_requesttime_seconds_bucket{le=\"480.0\"}[24h]))",
+          "legendFormat": "480-540s",
+          "refId": "I",
+          "instant": true
+        },
+        {
+          "expr": "sum(increase(local_backend_requesttime_seconds_bucket{le=\"600.0\"}[24h])) - sum(increase(local_backend_requesttime_seconds_bucket{le=\"540.0\"}[24h]))",
           "legendFormat": "540-600s",
           "refId": "J",
           "instant": true
@@ -259,7 +628,7 @@
   "schemaVersion": 39,
   "style": "dark",
   "tags": [
-    "cookiemancer"
+    "vlm-chat"
   ],
   "templating": {
     "list": []
@@ -269,6 +638,6 @@
     "to": "now"
   },
   "timezone": "",
-  "title": "Cookiemancer",
+  "title": "VLM-Chat",
   "version": 1
 }

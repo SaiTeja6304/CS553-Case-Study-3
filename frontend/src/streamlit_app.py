@@ -10,22 +10,30 @@ def _start_prometheus_metrics_server(port: int = 33333) -> dict:
 
     return {
         "api_requests": prometheus_client.Counter(
-            'api_frontend_requests_total', 'Total number of API requests made.'
+            'api_frontend_requests_total', 
+            'Total number of API requests made.'
         ),
         "local_requests": prometheus_client.Counter(
-            'local_frontend_requests_total', 'Total number of local requests made.'
+            'local_frontend_requests_total', 
+            'Total number of local requests made.'
         ),
         "api_errors": prometheus_client.Counter(
-            'api_frontend_errors_total', 'Total number of API request errors.'
+            'api_frontend_errors_total', 
+            'Total number of API request errors.'
         ),
         "local_errors": prometheus_client.Counter(
-            'local_frontend_errors_total', 'Total number of local request errors.'
+            'local_frontend_errors_total', 
+            'Total number of local request errors.'
         ),
         "api_time": prometheus_client.Histogram(
-            'api_frontend_requesttime_seconds', 'Time spent processing API requests.'
+            'api_frontend_requesttime_seconds', 
+            'Time spent processing API requests.',
+            buckets = (5.0, 10.0, 20.0, 30.0, 60.0, float("inf"))
         ),
         "local_time": prometheus_client.Histogram(
-            'local_frontend_requesttime_seconds', 'Time spent processing local requests.'
+            'local_frontend_requesttime_seconds', 
+            'Time spent processing local requests.',
+            buckets = (5.0, 10.0, 20.0, 30.0, 60.0, float("inf"))
         )
     }
 

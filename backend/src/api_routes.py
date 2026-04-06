@@ -10,7 +10,7 @@ router = APIRouter(
 
 API_BACKEND_REQUESTS_TOTAL = prometheus_client.Counter(
     'api_backend_requests_total',
-    'Total number of API requests made.'
+    'Total number of API requests made.',
 )
 
 LOCAL_BACKEND_REQUESTS_TOTAL = prometheus_client.Counter(
@@ -30,12 +30,14 @@ LOCAL_BACKEND_ERRORS_TOTAL = prometheus_client.Counter(
 
 API_BACKEND_REQUESTTIME_SECONDS = prometheus_client.Histogram(
     'api_backend_requesttime_seconds',
-    'Total time spent processing backend API requests.'
+    'Total time spent processing backend API requests.',
+    buckets = (5.0, 10.0, 20.0, 30.0, 60.0, float("inf"))
 )
 
 LOCAL_BACKEND_REQUESTTIME_SECONDS = prometheus_client.Histogram(
     'local_backend_requesttime_seconds',
-    'Total time spent processing backend local requests.'
+    'Total time spent processing backend local requests.',
+    buckets = (5.0, 10.0, 20.0, 30.0, 60.0, float("inf"))
 )
 
 HEALTH_CHECK_REQUESTS_TOTAL = prometheus_client.Counter(

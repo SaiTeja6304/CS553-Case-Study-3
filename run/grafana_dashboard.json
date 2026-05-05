@@ -259,7 +259,7 @@
   "schemaVersion": 39,
   "style": "dark",
   "tags": [
-    "cookiemancer"
+    "vlm_chat"
   ],
   "templating": {
     "list": []
@@ -269,6 +269,6 @@
     "to": "now"
   },
   "timezone": "",
-  "title": "Cookiemancer",
+  "title": "VLM Chat",
   "version": 1
 }

@@ -106,7 +106,7 @@ async def generate_response_api(input_img: UploadFile, query: str, using_local_m
     try:
         client = InferenceClient(token=HF_TOKEN, provider="featherless-ai")
         completion = client.chat.completions.create(
-            model="google/gemma-3-27b-it",
+            model="google/gemma-4-31b-it",
             messages=messages,
             max_tokens=500
         )
